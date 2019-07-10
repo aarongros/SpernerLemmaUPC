@@ -50,7 +50,6 @@ class Face {
     Face(vector<Node*> node_list);
     ~Face();
     bool isOpen(vector<string> colors);
-    bool hasAllColors(int numColors);
     void findNextFace(vector<string> colors, Face*& result);
     bool matchesNodes(vector<Node*> matching_nodes);
     bool ithValIsZero(int i);
