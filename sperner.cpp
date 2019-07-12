@@ -2,6 +2,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <stdlib.h>
 
 bool isValidNode(int* cur, int size) {
   int numOnes = 0;
@@ -190,7 +191,7 @@ void Triangle::findNodes(Node* curNode, unordered_map<string, Node*>& nodes_foun
         Face* face = new Face(nodes);
         faces_found.insert({mapKey, face});
         this->all_faces.push_back(face);
-        for(Node* node : *face) {
+        for(Node* node : face->nodes) {
           node->faces.push_back(face);
         }
       }
@@ -246,7 +247,7 @@ void Triangle::findFaces(Node* curNode, vector<Node*> matches, vector<Node*> vis
         Face* face = new Face(nodes);
         faces_made.insert({mapKey, face});
         this->all_faces.push_back(face);
-        for(Node* node : *face) {
+        for(Node* node : face->nodes) {
           node->faces.push_back(face);
         }
       }
@@ -292,7 +293,7 @@ void Node::labelVertice(int k) {
     sum += j * this->x[j-1];
   }
   this->label = sum % k;
-}
+} // works
 
 Face::Face(vector<Node*> node_list) {
   traversed = false;
@@ -350,8 +351,8 @@ bool Face::isOpen(vector<string> colors){
   return true;
 }
 
-bool hasAllColors(vector<Node*> nodes, int numColors) {
-  unordered_map<std::string, int> colors_found;
+bool hasAllColors(vector<Node*>& nodes, int numColors) {
+  unordered_map<string, int> colors_found;
   for(Node* node : nodes) {
     if(colors_found.find(node->color) == colors_found.end()) {
       colors_found.insert({node->color, 0});
@@ -363,7 +364,7 @@ bool hasAllColors(vector<Node*> nodes, int numColors) {
   return false;
 }
 
-SpernerTriangle::SpernerTriangle(vector<Node*> solution_nodes, Node*& extra_node) {
+SpernerTriangle::SpernerTriangle(vector<Node*> solution_nodes) {
   for(Node* node : solution_nodes) {
     this->nodes.push_back(node);
   }
@@ -377,21 +378,32 @@ void Triangle::colorTriangle() {
       if(node->x[i] != 0) {
         valid_colors.push_back(all_colors[i]);
       }
-      int randIndex = rand() % static_cast<int>(valid_colors.size());
-      node->color = valid_colors[randIndex];
     }
+    int randIndex = rand() % static_cast<int>(valid_colors.size());
+    node->color = valid_colors[randIndex];
   }
-}
+} // works
 
 bool Face::matchesNodes(vector<Node*> matching_nodes, Node*& extra_node) {
+  unordered_map<string, Node*> match_not_found;
+  for(Node* node : nodes) {
+    string key = "";
+    vectorToString(node->x, key);
+    match_not_found.insert({key, node});
+  }
   int numMatches = 0;
   Node* non_matching_node;
   for(Node* match_node : matching_nodes) {
     bool found_match = false;
     for(Node* face_node : nodes) {
       if(match_node == face_node) {
-        numMatches++;
+        string key = "";
+        vectorToString(face_node->x, key);
+        if(match_not_found.find(key) != match_not_found.end()) {
+          match_not_found.erase(key);
+        }
         found_match = true;
+        numMatches++;
         break;
       }
     }
@@ -399,11 +411,29 @@ bool Face::matchesNodes(vector<Node*> matching_nodes, Node*& extra_node) {
       non_matching_node = match_node;
     }
   }
-  if(numMatches == static_cast<int>(matching_nodes.size())-1) {
-    extra_node = non_matching_node;
-    return true;
+  if(numMatches == static_cast<int>(matching_nodes.size())-1 && static_cast<int>(match_not_found.size()) == 1) {
+    Node* new_non_matching_node;
+    for(auto n : match_not_found) {
+      new_non_matching_node = n.second;
+    }
+    for(Face* face : new_non_matching_node->faces) {
+      for(Node* node : face->nodes) {
+        if(node == non_matching_node) {
+          extra_node = non_matching_node;
+          return true;
+        }
+      }
+    }
   }
   return false;
+}
+
+int factorial(int n) {
+  int sum = 0;
+  for(int i = 1; i <= n; i++) {
+    sum += i;
+  }
+  return sum;
 }
 
 void Face::findNextFace(vector<string> colors, Face*& result, Node*& extra_node) {
@@ -412,25 +442,30 @@ void Face::findNextFace(vector<string> colors, Face*& result, Node*& extra_node)
   for(Node* node : nodes) {
     for(Face* face : node->faces) {
       if(face->matchesNodes(nodes, temp_node)) {
-        matching_faces.push_back(face);
-      }
-    }
-  }
-  for(Face* face : matching_faces) {
-    for(Face* face2 : matching_faces) {
-      if(face == this || face == face2) {
-        continue;
-      } else {
-        if(face->matchesNodes(face2->nodes, temp_node)) {
-          if(face->isOpen(colors) && !(face->traversed)) {
-            result = face;
-            extra_node = temp_node;
-            return;
-          }
+        if(face->isOpen(colors) && !(face->traversed)) {
+          result = face;
+          extra_node = temp_node;
+          return;
         }
+        // matching_faces.push_back(face);
       }
     }
   }
+  // for(Face* face : matching_faces) {
+  //   for(Face* face2 : matching_faces) {
+  //     if(face == this || face == face2) {
+  //       continue;
+  //     } else {
+  //       if(face->matchesNodes(face2->nodes, temp_node)) {
+  //         if(face->isOpen(colors) && !(face->traversed)) {
+  //           result = face;
+  //           extra_node = temp_node;
+  //           return;
+  //         }
+  //       }
+  //     }
+  //   }
+  // }
   result = NULL;
 }
 
@@ -449,9 +484,16 @@ void copyVector(vector<Node*>& target, vector<Node*> original) {
   }
 }
 
+void resetFacesVisited(vector<Face*> faces_visited) {
+  for(Face* face : faces_visited) {
+    face->traversed = false;
+  }
+}
+
 void Triangle::findSpernerTrangle() {
-   vector<Face*> faces_traversed;
+  unordered_map<string, SpernerTriangle*> sperner_triangles_found;
    for(int i = 0; i < k; i++) {
+     vector<Face*> faces_visited;
      string tempColor = all_colors[i];
      all_colors.erase(all_colors.begin()+i);
      for(Face* face : all_faces) {
@@ -459,22 +501,49 @@ void Triangle::findSpernerTrangle() {
          //go into face
          Face* curFace = face;
          Face* lastFace = face;
-         Node* extra_node;
-         face->traversed = true;
+         Node* extra_node = NULL;
          while(curFace != NULL) {
+           faces_visited.push_back(curFace);
+           curFace->traversed = true;
            lastFace = curFace;
            curFace->findNextFace(all_colors, curFace, extra_node);
          }
+         int target_label = factorial(k-1);
+         for(Node* node : lastFace->nodes) {
+           target_label -= node->label;
+         }
+         vector<Node*> possible_extra_nodes;
+         for(Node* node : lastFace->nodes) {
+           for(Face* face : node->faces) {
+             for(Node* node2 : face->nodes) {
+               if(node2->label == target_label) {
+                 possible_extra_nodes.push_back(node2);
+               }
+             }
+           }
+         }
          vector<Node*> sperner_nodes;
          copyVector(sperner_nodes, lastFace->nodes);
-         sperner_nodes.push_back(extra_node);
-         if(hasAllColors(sperner_nodes, k)) {
-           //create Sprener Triangle and add to resultsw
-           SpernerTriangle* ans = new SpernerTriangle(sperner_nodes);
-           all_sperner_triangles.push_back(ans);
+         for(Node* node : possible_extra_nodes) {
+           sperner_nodes.push_back(node);
+           if(hasAllColors(sperner_nodes, k)) {
+             //create Sprener Triangle and add to results
+             string key = "";
+             int combined_vectors[k];
+             initializeArrToZero(combined_vectors, k);
+             combineVectorNodes(combined_vectors, sperner_nodes);
+             arrayToString(combined_vectors, k, key);
+             if(sperner_triangles_found.find(key) == sperner_triangles_found.end()) {
+               SpernerTriangle* ans = new SpernerTriangle(sperner_nodes);
+               sperner_triangles_found.insert({key, ans});
+               all_sperner_triangles.push_back(ans);
+             }
+           }
+           sperner_nodes.pop_back();
          }
        }
      }
+     resetFacesVisited(faces_visited);
      all_colors.insert(all_colors.begin()+i, tempColor);
    }
 }
