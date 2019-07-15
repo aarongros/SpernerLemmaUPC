@@ -1,4 +1,5 @@
 #include "sperner.hpp"
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 #include <string>
@@ -90,7 +91,7 @@ void vectorToString(vector<int>& vector, string& ans) {
     }
     ans += "-" + stringNum;
   }
-} // works but not needed
+} // works
 
 void combineVectorNodes(int* result, vector<Node*> nodes) {
   for(Node* node : nodes) {
@@ -257,9 +258,10 @@ void Triangle::findFaces(Node* curNode, vector<Node*> matches, vector<Node*> vis
   visited.pop_back();
 }
 
-Triangle::Triangle(int q_val, int k_val, vector<string> colors) {
+Triangle::Triangle(int q_val, int k_val, vector<string> colors, int seed) {
   k = k_val;
   q = q_val;
+  srand(seed); // adjust to be random
 
   for(string color : colors) {
     all_colors.push_back(color);
@@ -371,7 +373,6 @@ SpernerTriangle::SpernerTriangle(vector<Node*> solution_nodes) {
 }
 
 void Triangle::colorTriangle() {
-  srand(1); // adjust to be random
   for(Node* node : all_nodes) {
     vector<string> valid_colors;
     for(int  i = 0; i < static_cast<int>(node->x.size()); i++) {
@@ -428,6 +429,7 @@ bool Face::matchesNodes(vector<Node*> matching_nodes, Node*& extra_node) {
   return false;
 }
 
+// Computes the factorial of n
 int factorial(int n) {
   int sum = 0;
   for(int i = 1; i <= n; i++) {
@@ -436,6 +438,7 @@ int factorial(int n) {
   return sum;
 }
 
+// Finds the next face/door to go through while finding sperner triangles
 void Face::findNextFace(vector<string> colors, Face*& result, Node*& extra_node) {
   Node* temp_node;
   vector<Face*> matching_faces;
@@ -469,6 +472,7 @@ void Face::findNextFace(vector<string> colors, Face*& result, Node*& extra_node)
   result = NULL;
 }
 
+// Checks if the ith val of all nodes in the Face are equal to zero
 bool Face::ithValIsZero(int i) {
   for(Node* node : nodes) {
     if(node->x[i] != 0) {
@@ -478,18 +482,21 @@ bool Face::ithValIsZero(int i) {
   return true;
 }
 
+// Copies the elements of one vector to another
 void copyVector(vector<Node*>& target, vector<Node*> original) {
   for(Node* node : original) {
     target.push_back(node);
   }
 }
 
+// Sets face's traversed variable to false
 void resetFacesVisited(vector<Face*> faces_visited) {
   for(Face* face : faces_visited) {
     face->traversed = false;
   }
 }
 
+// Finds all the sperner triangles
 void Triangle::findSpernerTrangle() {
   unordered_map<string, SpernerTriangle*> sperner_triangles_found;
    for(int i = 0; i < k; i++) {
@@ -546,4 +553,53 @@ void Triangle::findSpernerTrangle() {
      resetFacesVisited(faces_visited);
      all_colors.insert(all_colors.begin()+i, tempColor);
    }
+}
+
+// Prints nodes from triangles
+void Triangle::printAllNodes() {
+  cout << "All Nodes:" << endl;
+  for(Node* node : this->all_nodes) {
+    node->printNode();
+    cout << endl;
+  }
+  cout << endl;
+}
+// Prints cordinates of node
+void Node::printNode() {
+  for(int cord : this->x) {
+    cout << cord << ",";
+  }
+  cout << this->color << " " << this->label;
+}
+// Prints faces from triangle
+void Triangle::printAllFaces() {
+  cout << "All Faces:" << endl;
+  for(Face* face : this->all_faces) {
+    face->printFace();
+    cout << endl;
+  }
+  cout << endl;
+}
+// Prints nodes from face
+void Face::printFace() {
+  for(Node* node : this->nodes) {
+    node->printNode();
+    cout << " - ";
+  }
+}
+// Prints sperner triangles from triangle
+void Triangle::printAllSpernerTriangles() {
+  cout << "All Sperner Triagnles:" << endl;
+  for(SpernerTriangle* sperner_triangle : this->all_sperner_triangles) {
+    sperner_triangle->printSpernerTriangle();
+    cout << endl;
+  }
+  cout << endl;
+}
+// Prints nodes from sperner triangle
+void SpernerTriangle::printSpernerTriangle() {
+  for(Node* node : nodes) {
+    node->printNode();
+    cout << " - ";
+  }
 }

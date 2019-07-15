@@ -1,82 +1,48 @@
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <unordered_map>
 #include "sperner.cpp"
+
 using namespace std;
-// Prints array
-void printCords(int* curCordinates, int size) {
-  for(int i = 0; i < size; i++) {
-    cout << curCordinates[i] << " ";
-  }
-  cout << endl;
-}
-// Prints Nodes from triangles
-void printAllNodes(Triangle* triangle) {
-  cout << "All Nodes:" << endl;
-  for(int i = 0; i < static_cast<int>(triangle->all_nodes.size()); i++) {
-    for(int x : triangle->all_nodes[i]->x) {
-      cout << x << " ";
-    }
-    cout << triangle->all_nodes[i]->color << " " << triangle->all_nodes[i]->label << endl;
-  }
-  cout << endl;
-}
-// Prints vector of nodes
-void printNodes(vector<Node*> nodes) {
-  for(Node* node : nodes) {
-    for(int x : node->x) {
-      cout << x << ",";
-    }
-    cout << node->color << " - ";
-  }
-  cout << endl;
-}
-//print face
-void printFace(Face* face) {
-  for(Node* node : face->nodes) {
-    for(int x : node->x) {
-      cout << x << ",";
-    }
-    cout << " - ";
-  }
-}
-// Prints faces from triangle
-void printAllFaces(Triangle* triangle) {
-  cout << "All Faces:" << endl;
-  for(int i = 0; i < static_cast<int>(triangle->all_faces.size()); i++) {
-    printNodes(triangle->all_faces[i]->nodes);
-  }
-  cout << endl;
-}
-// Prints Sperner Triangles from Triangle
-void printAllSpernerTriangles(Triangle* triangle) {
-  cout << "All Sperner Triagnles:" << endl;
-  for(SpernerTriangle* spernTri : triangle->all_sperner_triangles) {
-    printNodes(spernTri->nodes);
-  }
-}
-//Prints vector
-template<typename T>
-std::ostream& operator<<(std::ostream& s, const std::vector<T>& v) {
-    s.put('[');
-    char comma[3] = {'\0', ' ', '\0'};
-    for (const auto& e : v) {
-        s << comma << e;
-        comma[0] = ',';
-    }
-    return s << ']';
-}
 
 int main() {
-  int q = 3;
-  int k = 3;
-  // vector should have k number of colors
-  vector<string> colors {"blue", "red", "green"};
-  Triangle* triangle = new Triangle(q, k, colors);
+  // Get k and q value as input
+  int k;
+  int q;
+  cout << "Enter a k value (number of dimensions): ";
+  cin >> k;
+  cout << "Enter a q value (size of triagle): ";
+  cin >> q;
+  // Get k unique colors through input
+  vector<string> colors;
+  unordered_map<string, int> colors_used;
+  while(static_cast<int>(colors.size()) != k) {
+    string color;
+    cout << "Enter a unique color: ";
+    cin >> color;
+    if(colors_used.find(color) == colors_used.end()) {
+      colors.push_back(color);
+      colors_used.insert({color, 0});
+    } else {
+      cout << "Error: color was already entered" << endl;
+    }
+  }
+  // Get a random seed as input
+  int seed;
+  cout << "Enter a randrom seed: ";
+  cin >> seed;
+  // Build the triangle
+  cout << "Building the triangle......" << endl;
+  Triangle* triangle = new Triangle(q, k, colors, seed);
+  // Color the triangle
+  cout << "Coloring the triangle......" << endl;
   triangle->colorTriangle();
-  printAllNodes(triangle);
-  printAllFaces(triangle);
+  // Find sperner triangles
+  cout << "Finding sperner triangles......" << endl;
   triangle->findSpernerTrangle();
-  printAllSpernerTriangles(triangle);
+  // Print all nodes, faces, and sperner triangles
+  triangle->printAllNodes();
+  triangle->printAllFaces();
+  triangle->printAllSpernerTriangles();
   return 0;
 }

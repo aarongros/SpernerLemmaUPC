@@ -19,13 +19,16 @@ class Triangle {
       vector<string> all_colors;
       vector<SpernerTriangle*> all_sperner_triangles;
 
-      Triangle(int q_val, int k_val, vector<string> colors);
+      Triangle(int q_val, int k_val, vector<string> colors, int seed);
       ~Triangle();
       void findNodes(Node* curNode, unordered_map<string, Node*>& nodes_found, unordered_map<string, Face*>& faces_found);
       void findFaces(Node* curNode, vector<Node*> matches, vector<Node*> visited, unordered_map<string, Face*>& faces_made);
       void initializeBounds(int* upperbound, int* lowerbound, int k, Node* curNode);
       void colorTriangle();
       void findSpernerTrangle();
+      void printAllNodes();
+      void printAllFaces();
+      void printAllSpernerTriangles();
 };
 
 class Node {
@@ -40,6 +43,7 @@ class Node {
     void labelVertice(int k);
     bool isColored();
     int numZeroes();
+    void printNode();
 };
 
 class Face {
@@ -53,6 +57,7 @@ class Face {
     void findNextFace(vector<string> colors, Face*& result, Node*& extra_node);
     bool matchesNodes(vector<Node*> matching_nodes, Node*& extra_node);
     bool ithValIsZero(int i);
+    void printFace();
 };
 
 class SpernerTriangle {
@@ -60,6 +65,7 @@ class SpernerTriangle {
     vector<Node*> nodes;
 
     SpernerTriangle(vector<Node*> solution_nodes);
+    void printSpernerTriangle();
 };
 
 #endif
