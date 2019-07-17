@@ -1,5 +1,5 @@
 main: main.cpp
-	g++ -Wall -g -o test main.cpp
+	g++ -Wall -g -o main main.cpp
 
 clean:
 	rm test

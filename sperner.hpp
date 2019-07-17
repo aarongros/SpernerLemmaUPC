@@ -23,7 +23,7 @@ class Triangle {
       ~Triangle();
       void findNodes(Node* curNode, unordered_map<string, Node*>& nodes_found, unordered_map<string, Face*>& faces_found);
       void findFaces(Node* curNode, vector<Node*> matches, vector<Node*> visited, unordered_map<string, Face*>& faces_made);
-      void initializeBounds(int* upperbound, int* lowerbound, int k, Node* curNode);
+      void initializeBounds(int* upperbound, int* lowerbound, Node* curNode);
       void colorTriangle();
       void findSpernerTrangle();
       void printAllNodes();

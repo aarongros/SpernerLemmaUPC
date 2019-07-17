@@ -44,10 +44,10 @@ void incrementCordinate(int* cur, int* upper, int* lower, int size) {
       cur[j] = lower[j];
     } else {
       cur[j] += 1;
-      break;
+      return;
     }
   }
-}
+} // works
 
 bool notEqual(int* cur, int* bound, int size) {
   for(int j = 0; j < size; j++) {
@@ -56,7 +56,7 @@ bool notEqual(int* cur, int* bound, int size) {
     }
   }
   return false;
-}
+} // works
 
 void arrayToString(int* array, int size, string& ans) {
   int zero = (int)('0');
@@ -97,8 +97,7 @@ void combineVectorNodes(int* result, vector<Node*> nodes) {
   for(Node* node : nodes) {
     int index = 0;
     for(int x : node->x) {
-      result[index] += x;
-      index++;
+      result[index++] += x;
     }
   }
 } //works
@@ -116,20 +115,20 @@ void combineVectors(vector<Node*>& result, vector<Node*> vector1, vector<Node*> 
   for(Node* node : vector2) {
     result.push_back(node);
   }
-}
+} // works
 
-void Triangle::initializeBounds(int* upperbound, int* lowerbound, int k, Node* curNode) {
+void Triangle::initializeBounds(int* upperbound, int* lowerbound, Node* curNode) {
   for(int i = 0; i < k; i++) {
     upperbound[i] = (curNode->x[i] + 1 <= q) ? curNode->x[i] + 1 : curNode->x[i];
     lowerbound[i] = (curNode->x[i] - 1 >= 0) ? curNode->x[i] - 1 : curNode->x[i];
   }
-}
+} // works
 
 void Triangle::findNodes(Node* curNode, unordered_map<string, Node*>& nodes_found, unordered_map<string, Face*>& faces_found) {
   // Find upper and lower bounds
   int upperbound[k];
   int lowerbound[k];
-  initializeBounds(upperbound, lowerbound, k, curNode);
+  initializeBounds(upperbound, lowerbound, curNode);
   // Initializef the current cordinate
   int curCordinates[k];
   for(int i = 0; i < k; i++) {
@@ -206,7 +205,7 @@ void Triangle::findFaces(Node* curNode, vector<Node*> matches, vector<Node*> vis
   visited.push_back(curNode);
   int upperbound[k];
   int lowerbound[k];
-  initializeBounds(upperbound, lowerbound, k, curNode);
+  initializeBounds(upperbound, lowerbound, curNode);
   vector<Node*> new_matches;
   for(Node* node : matches) {
     bool valid = true;
@@ -262,16 +261,12 @@ Triangle::Triangle(int q_val, int k_val, vector<string> colors, int seed) {
   k = k_val;
   q = q_val;
   srand(seed); // adjust to be random
-
-  for(string color : colors) {
-    all_colors.push_back(color);
-  }
+  all_colors = colors;
 
   int nodeValues[k];
+  initializeArrToZero(nodeValues, k);
   nodeValues[0] = q;
-  for(int j = 1; j < k; j++) {
-    nodeValues[j] = 0;
-  }
+
   string mapKey = "";
   arrayToString(nodeValues, k, mapKey);
   unordered_map<string, Node*> nodes_found;
@@ -287,7 +282,7 @@ Node::Node(int* x_vals, int size) {
     x.push_back(x_vals[j]);
   }
   this->labelVertice(size);
-}
+} // works
 
 void Node::labelVertice(int k) {
   int sum = 0;
@@ -299,10 +294,8 @@ void Node::labelVertice(int k) {
 
 Face::Face(vector<Node*> node_list) {
   traversed = false;
-  for(Node* node : node_list) {
-    nodes.push_back(node);
-  }
-}
+  nodes = node_list;
+} // works
 
 Triangle::~Triangle() {
   for(Node* node : all_nodes) {
@@ -325,13 +318,7 @@ int Node::numZeroes() {
     }
   }
   return count;
-}
-
-bool Node::isColored() {
-  if(this->color == "")
-      return false;
-  return true;
-}
+} // works
 
 bool Face::isOpen(vector<string> colors){
   unordered_map<string,int> colors_found;
@@ -367,10 +354,8 @@ bool hasAllColors(vector<Node*>& nodes, int numColors) {
 }
 
 SpernerTriangle::SpernerTriangle(vector<Node*> solution_nodes) {
-  for(Node* node : solution_nodes) {
-    this->nodes.push_back(node);
-  }
-}
+  nodes = solution_nodes;
+} // works
 
 void Triangle::colorTriangle() {
   for(Node* node : all_nodes) {
@@ -482,13 +467,6 @@ bool Face::ithValIsZero(int i) {
   return true;
 }
 
-// Copies the elements of one vector to another
-void copyVector(vector<Node*>& target, vector<Node*> original) {
-  for(Node* node : original) {
-    target.push_back(node);
-  }
-}
-
 // Sets face's traversed variable to false
 void resetFacesVisited(vector<Face*> faces_visited) {
   for(Face* face : faces_visited) {
@@ -530,7 +508,7 @@ void Triangle::findSpernerTrangle() {
            }
          }
          vector<Node*> sperner_nodes;
-         copyVector(sperner_nodes, lastFace->nodes);
+         sperner_nodes = lastFace->nodes;
          for(Node* node : possible_extra_nodes) {
            sperner_nodes.push_back(node);
            if(hasAllColors(sperner_nodes, k)) {
@@ -563,14 +541,14 @@ void Triangle::printAllNodes() {
     cout << endl;
   }
   cout << endl;
-}
+} // works
 // Prints cordinates of node
 void Node::printNode() {
   for(int cord : this->x) {
     cout << cord << ",";
   }
   cout << this->color << " " << this->label;
-}
+} // works
 // Prints faces from triangle
 void Triangle::printAllFaces() {
   cout << "All Faces:" << endl;
@@ -579,14 +557,14 @@ void Triangle::printAllFaces() {
     cout << endl;
   }
   cout << endl;
-}
+} // works
 // Prints nodes from face
 void Face::printFace() {
   for(Node* node : this->nodes) {
     node->printNode();
     cout << " - ";
   }
-}
+} // works
 // Prints sperner triangles from triangle
 void Triangle::printAllSpernerTriangles() {
   cout << "All Sperner Triagnles:" << endl;
@@ -595,11 +573,11 @@ void Triangle::printAllSpernerTriangles() {
     cout << endl;
   }
   cout << endl;
-}
+} // works
 // Prints nodes from sperner triangle
 void SpernerTriangle::printSpernerTriangle() {
   for(Node* node : nodes) {
     node->printNode();
     cout << " - ";
   }
-}
+} // works
