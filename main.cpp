@@ -41,6 +41,7 @@ int main() {
   cout << "Finding sperner triangles......" << endl;
   triangle->findSpernerTrangle();
   // Print all nodes, faces, and sperner triangles
+  cout << endl;
   triangle->printAllNodes();
   triangle->printAllFaces();
   triangle->printAllSpernerTriangles();

@@ -60,14 +60,17 @@ bool notEqual(int* cur, int* bound, int size) {
 
 void arrayToString(int* array, int size, string& ans) {
   int zero = (int)('0');
+  int num;
+  string stringNum;
+  float decimal;
   for(int j = 0; j < size; j++) {
-    int num = array[j];
-    string stringNum = "";
+    num = array[j];
+    stringNum = "";
     if(num == 0) {
       stringNum += zero;
     }
     while(num > 0) {
-      float decimal = ((float)num)/10;
+      decimal = ((float)num)/10;
       num /= 10;
       decimal = (decimal - num) * 10;
       stringNum = (char)(decimal + zero) + stringNum;
@@ -78,13 +81,15 @@ void arrayToString(int* array, int size, string& ans) {
 
 void vectorToString(vector<int>& vector, string& ans) {
   int zero = (int)('0');
+  string stringNum;
+  float decimal;
   for(int num : vector) {
-    string stringNum = "";
+    stringNum = "";
     if(num == 0) {
       stringNum += zero;
     }
     while(num > 0) {
-      float decimal = ((float)num)/10;
+      decimal = ((float)num)/10;
       num /= 10;
       decimal = (decimal - num) * 10;
       stringNum = (char)(decimal + zero) + stringNum;
@@ -94,8 +99,9 @@ void vectorToString(vector<int>& vector, string& ans) {
 } // works
 
 void combineVectorNodes(int* result, vector<Node*> nodes) {
+  int index;
   for(Node* node : nodes) {
-    int index = 0;
+    index = 0;
     for(int x : node->x) {
       result[index++] += x;
     }
@@ -358,6 +364,7 @@ SpernerTriangle::SpernerTriangle(vector<Node*> solution_nodes) {
 } // works
 
 void Triangle::colorTriangle() {
+  int randIndex;
   for(Node* node : all_nodes) {
     vector<string> valid_colors;
     for(int  i = 0; i < static_cast<int>(node->x.size()); i++) {
@@ -365,25 +372,27 @@ void Triangle::colorTriangle() {
         valid_colors.push_back(all_colors[i]);
       }
     }
-    int randIndex = rand() % static_cast<int>(valid_colors.size());
+    randIndex = rand() % static_cast<int>(valid_colors.size());
     node->color = valid_colors[randIndex];
   }
 } // works
 
 bool Face::matchesNodes(vector<Node*> matching_nodes, Node*& extra_node) {
   unordered_map<string, Node*> match_not_found;
+  string key;
   for(Node* node : nodes) {
-    string key = "";
+    key = "";
     vectorToString(node->x, key);
     match_not_found.insert({key, node});
   }
   int numMatches = 0;
   Node* non_matching_node;
+  bool found_match;
   for(Node* match_node : matching_nodes) {
-    bool found_match = false;
+    found_match = false;
     for(Node* face_node : nodes) {
       if(match_node == face_node) {
-        string key = "";
+        key = "";
         vectorToString(face_node->x, key);
         if(match_not_found.find(key) != match_not_found.end()) {
           match_not_found.erase(key);
@@ -549,6 +558,7 @@ void Triangle::printAllNodes() {
   }
   cout << endl;
 } // works
+
 // Prints cordinates of node
 void Node::printNode() {
   for(int cord : this->x) {
@@ -556,6 +566,7 @@ void Node::printNode() {
   }
   cout << this->color << " " << this->label;
 } // works
+
 // Prints faces from triangle
 void Triangle::printAllFaces() {
   cout << "All Faces:" << endl;
@@ -565,6 +576,7 @@ void Triangle::printAllFaces() {
   }
   cout << endl;
 } // works
+
 // Prints nodes from face
 void Face::printFace() {
   for(Node* node : this->nodes) {
@@ -572,6 +584,7 @@ void Face::printFace() {
     cout << " - ";
   }
 } // works
+
 // Prints sperner triangles from triangle
 void Triangle::printAllSpernerTriangles() {
   cout << "All Sperner Triagnles:" << endl;
@@ -581,6 +594,7 @@ void Triangle::printAllSpernerTriangles() {
   }
   cout << endl;
 } // works
+
 // Prints nodes from sperner triangle
 void SpernerTriangle::printSpernerTriangle() {
   for(Node* node : nodes) {
