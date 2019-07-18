@@ -44,6 +44,7 @@ class Node {
     bool isColored();
     int numZeroes();
     void printNode();
+    void findMissingNode(Node*& result, int target_label, string target_string);
 };
 
 class Face {
