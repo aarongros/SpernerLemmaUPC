@@ -19,10 +19,10 @@ public:
   vector<string> all_colors;
   vector<SpernerTriangle*> all_sperner_triangles;
 
-  Triangle(int q_val, int k_val, vector<string> colors, int seed);
+  Triangle(int q_val, int k_val, vector<string>& colors, int seed);
   ~Triangle();
   void findNodes(Node* curNode, unordered_map<string, Node*>& nodes_found, unordered_map<string, Face*>& faces_found);
-  void findFaces(Node* curNode, vector<Node*> matches, vector<Node*> visited, unordered_map<string, Face*>& faces_made);
+  void findFaces(Node* curNode, vector<Node*>& matches, vector<Node*>& visited, unordered_map<string, Face*>& faces_made);
   void initializeBounds(int* upperbound, int* lowerbound, Node* curNode);
   void colorTriangle();
   void findSpernerTrangle();
@@ -52,11 +52,11 @@ public:
   bool traversed;
   vector<Node*> nodes;
 
-  Face(vector<Node*> node_list);
+  Face(vector<Node*>& node_list);
   ~Face();
-  bool isOpen(vector<string> colors);
-  void findNextFace(vector<string> colors, Face*& result);
-  bool matchesNodes(vector<Node*> matching_nodes);
+  bool isOpen(vector<string>& colors);
+  void findNextFace(vector<string>& colors, Face*& result);
+  bool matchesNodes(vector<Node*>& matching_nodes);
   bool ithValIsZero(int i);
   void printFace();
 };
@@ -65,7 +65,7 @@ class SpernerTriangle {
 public:
   vector<Node*> nodes;
 
-  SpernerTriangle(vector<Node*> solution_nodes);
+  SpernerTriangle(vector<Node*>& solution_nodes);
   void printSpernerTriangle();
 };
 
