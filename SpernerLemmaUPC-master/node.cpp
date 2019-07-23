@@ -23,6 +23,24 @@ Node::Node(int * x_vals, int size) {
 }
 
 /*
+ * Finds missing node to form a sperner triangle
+ *
+ * @param node pointer to store the node reference at
+ * @param target label of the node
+ * @param target color of the node
+ */
+void Node::findMissingNode(Node*& result, int target_label, string target_string) {
+  for(Face* face : this->faces) {
+    for(Node* node : face->nodes) {
+      if(node->label == target_label && node->color == target_string) {
+        result = node;
+        return;
+      }
+    }
+  }
+}
+
+/*
  * Assigns a label to a vertex of the simplex.
  *
  * @param k Dimension of Sperner simplex

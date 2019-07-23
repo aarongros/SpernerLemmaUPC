@@ -19,6 +19,7 @@ class Node {
     vector<Face*> faces;
 
     Node(int* x_vals, int size);
+    void findMissingNode(Node*& result, int target_label, string target_string);
     void labelVertex(int k);
     int numZeroes();
     void printNode();

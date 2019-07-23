@@ -428,66 +428,61 @@ void Triangle::colorTriangle() {
 void Triangle::findSpernerTriangle() {
  unordered_map<string, SpernerTriangle *> sperner_triangles_found;
 
-  for (int i = 0; i < k; i++) {
-    vector<Face *> faces_visited;
-    string tempColor = all_colors[i];
-    all_colors.erase(all_colors.begin()+i);
+ // Loop through all the sides of the simplex
+ for(int i = 0; i < k; i++) {
+   vector<Face*> faces_visited; // maybe move outside loop and clear vector-----------------------
+   // Remove a color to find find the valid doors
+   string tempColor = all_colors[i]; // instantiate outside loop -------------------------
+   all_colors.erase(all_colors.begin()+i);
 
-    for (Face * face : all_faces) {
-      if (!(face->traversed) && face->ithValIsZero(i) && face->isOpen(all_colors)) {
-        // Go into face
-        Face* curFace = face;
-        Face* lastFace = face;
-        Node* extra_node = NULL;
+   for(Face* face : all_faces) {
 
-        while(curFace != NULL) {
-          faces_visited.push_back(curFace);
-          curFace->traversed = true;
-          lastFace = curFace;
-          curFace->findNextFace(all_colors, curFace, extra_node);
-        }
+     // Check if face hasn't been traversed, if it coresponds with the side and if open
+     if(!(face->traversed) && face->ithValIsZero(i) && face->isOpen(all_colors)) {
+       //go into face
+       Face* curFace = face;
+       Face* lastFace = face;
+       Node* extra_node = NULL;
 
-        int target_label = factorial(k-1);
-        for (Node* node : lastFace->nodes) {
-          target_label -= node->label;
-        }
+       // Loop until you come back out the simplex or find a sperner triangle
+       while(curFace != NULL) {
+         faces_visited.push_back(curFace);
+         curFace->traversed = true;
+         lastFace = curFace;
+         curFace->findNextFace(all_colors, curFace, extra_node);
+       }
 
-        vector<Node*> possible_extra_nodes;
-        for (Node* node : lastFace->nodes) {
-          for (Face* face : node->faces) {
-            for (Node* node2 : face->nodes) {
-              if (node2->label == target_label) {
-                possible_extra_nodes.push_back(node2);
-              }
-            }
-          }
-        }
-        vector<Node*> sperner_nodes;
-        sperner_nodes = lastFace->nodes;
+       // Find the label the missing node must have
+       int target_label = factorial(k-1);
+       for(Node* node : lastFace->nodes) {
+         target_label -= node->label;
+       }
+       extra_node = NULL;
+       lastFace->nodes[0]->findMissingNode(extra_node, target_label, tempColor);
 
-        for (Node * node : possible_extra_nodes) {
-          sperner_nodes.push_back(node);
+       // If a node was found have a sperner triangle, if it wasn't then outside simplex
+       if(extra_node != NULL) {
+         vector<Node*> sperner_nodes;
+         sperner_nodes = lastFace->nodes;
+         sperner_nodes.push_back(extra_node);
+         //create Sprener Triangle and add to results
+         string key = "";
+         int combined_vectors[k];
+         initializeArrToZero(combined_vectors, k);
+         combineVectorNodes(combined_vectors, sperner_nodes);
+         arrayToString(combined_vectors, k, key);
 
-          if (hasAllColors(sperner_nodes, k)) {
-            //create Sprener Triangle and add to results
-            string key = "";
-            int combined_vectors[k];
-            initializeArrToZero(combined_vectors, k);
-            combineVectorNodes(combined_vectors, sperner_nodes);
-            arrayToString(combined_vectors, k, key);
-            if (sperner_triangles_found.find(key) == sperner_triangles_found.end()) {
-              SpernerTriangle * ans = new SpernerTriangle(sperner_nodes);
-              sperner_triangles_found.insert({key, ans});
-              all_sperner_triangles.push_back(ans);
-            }
-          }
-          sperner_nodes.pop_back();
-        }
-      }
-    }
-    resetFacesVisited(faces_visited);
-    all_colors.insert(all_colors.begin()+i, tempColor);
-  }
+         if(sperner_triangles_found.find(key) == sperner_triangles_found.end()) {
+           SpernerTriangle* ans = new SpernerTriangle(sperner_nodes);
+           sperner_triangles_found.insert({key, ans});
+           all_sperner_triangles.push_back(ans);
+         }
+       }
+     }
+   }
+   resetFacesVisited(faces_visited);
+   all_colors.insert(all_colors.begin()+i, tempColor);
+ }
 }
 
 /*
