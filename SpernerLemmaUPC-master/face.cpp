@@ -17,9 +17,7 @@ using namespace std;
 Face::Face(vector<Node*> node_list) {
   traversed = false;
 
-  for (Node* node : node_list) {
-    nodes.push_back(node);
-  }
+  nodes = node_list;
 }
 
 /*

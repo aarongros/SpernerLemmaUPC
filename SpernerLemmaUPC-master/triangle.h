@@ -19,7 +19,6 @@ class Triangle {
 
       Triangle(int q_val, int k_val, vector<string> colors, int seed);
       void resetFacesVisited(vector<Face *> faces_visited);
-      void copyVector(vector<Node *>& target, vector<Node *> original);
       bool hasAllColors(vector<Node *>& nodes, int numColors);
       void combineVectors(vector<Node *>& result, vector<Node *> vector1,
                           vector<Node *> vector2);
@@ -33,7 +32,7 @@ class Triangle {
       int factorial(int n);
       void findNodes(Node* curNode, unordered_map<string, Node*>& nodes_found, unordered_map<string, Face*>& faces_found);
       void findFaces(Node* curNode, vector<Node*> matches, vector<Node*> visited, unordered_map<string, Face*>& faces_made);
-      void initializeBounds(int* upperbound, int* lowerbound, int k, Node* curNode);
+      void initializeBounds(int* upperbound, int* lowerbound, Node* curNode);
       void colorTriangle();
       void findSpernerTriangle();
       void printAllNodes();

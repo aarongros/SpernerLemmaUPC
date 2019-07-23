@@ -37,18 +37,6 @@ void Node::labelVertex(int k) {
 }
 
 /*
- * Checks if a Node has been colored.
- *
- * @return Boolean indicating if Node has been colored
- */
-bool Node::isColored() {
-  if (this->color == "") {
-      return false;
-  }
-  return true;
-}
-
-/*
  * Counts number of zeros in Node's coordinates.
  *
  * @return Number of zeros in Node's coordinates

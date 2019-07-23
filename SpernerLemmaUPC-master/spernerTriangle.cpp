@@ -16,9 +16,7 @@ using namespace std;
  * @param solution_nodes Pointers to nodes of Sperner Triangle
  */
 SpernerTriangle::SpernerTriangle(vector<Node *> solution_nodes) {
-  for (Node * node : solution_nodes) {
-    this->nodes.push_back(node);
-  }
+  nodes = solution_nodes;
 }
 
 /*

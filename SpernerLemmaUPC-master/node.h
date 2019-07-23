@@ -20,7 +20,6 @@ class Node {
 
     Node(int* x_vals, int size);
     void labelVertex(int k);
-    bool isColored();
     int numZeroes();
     void printNode();
     ~Node();

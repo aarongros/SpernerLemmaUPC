@@ -18,16 +18,11 @@ Triangle::Triangle(int q_val, int k_val, vector<string> colors, int seed) {
   q = q_val;
   srand(seed); // adjust to be random
 
-  for (string color : colors) {
-    all_colors.push_back(color);
-  }
+  all_colors = colors;
 
   int nodeValues[k];
+  initializeArrToZero(nodeValues, k);
   nodeValues[0] = q;
-
-  for (int j = 1; j < k; j++) {
-    nodeValues[j] = 0;
-  }
 
   string mapKey = "";
   arrayToString(nodeValues, k, mapKey);
@@ -48,18 +43,6 @@ Triangle::Triangle(int q_val, int k_val, vector<string> colors, int seed) {
 void Triangle::resetFacesVisited(vector<Face *> faces_visited) {
   for (Face * face : faces_visited) {
     face->traversed = false;
-  }
-}
-
-/*
- * Copies the elements of one vector to another.
- *
- * @param target Pointer to copy of original vector
- * @param original Pointer to vector to be copied
- */
-void Triangle::copyVector(vector<Node *>& target, vector<Node *> original) {
-  for (Node * node : original) {
-    target.push_back(node);
   }
 }
 
@@ -122,8 +105,7 @@ void Triangle::combineVectorNodes(int * result, vector<Node *> nodes) {
   for(Node * node : nodes) {
     int index = 0;
     for(int x : node->x) {
-      result[index] += x;
-      index++;
+      result[index++] += x;
     }
   }
 }
@@ -184,7 +166,7 @@ void Triangle::incrementCoordinate(int * cur, int * upper, int * lower, int size
       cur[j] = lower[j];
     } else {
       cur[j] += 1;
-      break;
+      return;
     }
   }
 }
@@ -264,7 +246,7 @@ int Triangle::factorial(int n) {
    // Find upper and lower bounds
    int upperbound[k];
    int lowerbound[k];
-   initializeBounds(upperbound, lowerbound, k, curNode);
+   initializeBounds(upperbound, lowerbound, curNode);
 
    // Initialized the current cordinate
    int curCoordinates[k];
@@ -357,7 +339,7 @@ int Triangle::factorial(int n) {
    visited.push_back(curNode);
    int upperbound[k];
    int lowerbound[k];
-   initializeBounds(upperbound, lowerbound, k, curNode);
+   initializeBounds(upperbound, lowerbound, curNode);
    vector<Node *> new_matches;
    for (Node * node : matches) {
      bool valid = true;
@@ -416,7 +398,7 @@ int Triangle::factorial(int n) {
  * @param k Dimension of Sperner simplex
  * @param curNode Node to base bounds off of
  */
-void Triangle::initializeBounds(int * upperbound, int * lowerbound, int k,
+void Triangle::initializeBounds(int * upperbound, int * lowerbound,
                                 Node * curNode) {
  for (int i = 0; i < k; i++) {
    upperbound[i] = (curNode->x[i] + 1 <= q) ? curNode->x[i] + 1 : curNode->x[i];
@@ -481,7 +463,7 @@ void Triangle::findSpernerTriangle() {
           }
         }
         vector<Node*> sperner_nodes;
-        copyVector(sperner_nodes, lastFace->nodes);
+        sperner_nodes = lastFace->nodes;
 
         for (Node * node : possible_extra_nodes) {
           sperner_nodes.push_back(node);
