@@ -53,6 +53,7 @@ int main() {
   triangle->findSpernerTriangle();
 
   // Print all nodes, faces, and sperner triangles
+  cout << endl;
   triangle->printAllNodes();
   triangle->printAllFaces();
   triangle->printAllSpernerTriangles();

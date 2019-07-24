@@ -14,7 +14,7 @@ using namespace std;
  *
  * @param node_list List of nodes for a single face of simplex
  */
-Face::Face(vector<Node*> node_list) {
+Face::Face(vector<Node*>& node_list) {
   traversed = false;
 
   nodes = node_list;
@@ -28,13 +28,15 @@ Face::Face(vector<Node*> node_list) {
  */
 void Face::vectorToString(vector<int>& vector, string& ans) {
   int zero = (int)('0');
+  string stringNum;
+  float decimal;
   for(int num : vector) {
-    string stringNum = "";
+    stringNum = "";
     if(num == 0) {
       stringNum += zero;
     }
     while(num > 0) {
-      float decimal = ((float)num)/10;
+      decimal = ((float)num)/10;
       num /= 10;
       decimal = (decimal - num) * 10;
       stringNum = (char)(decimal + zero) + stringNum;
@@ -49,7 +51,7 @@ void Face::vectorToString(vector<int>& vector, string& ans) {
  * @param colors The colors within simplex instance
  * @return Boolean indicating if face is open
  */
-bool Face::isOpen(vector<string> colors){
+bool Face::isOpen(vector<string>& colors){
  unordered_map<string,int> colors_found;
 
  for (string color : colors) {
@@ -80,37 +82,17 @@ bool Face::isOpen(vector<string> colors){
  * @param result Next face found by function
  * @param extra_node Pointer to assign to non-matching node
  */
-void Face::findNextFace(vector<string> colors, Face *& result, Node *& extra_node) {
- Node * temp_node;
+void Face::findNextFace(vector<string>& colors, Face *& result) {
  vector<Face *> matching_faces;
 
- for (Node * node : nodes) {
-   for (Face * face : node->faces) {
-     if (face->matchesNodes(nodes, temp_node)) {
-       if (face->isOpen(colors) && !(face->traversed)) {
-         result = face;
-         extra_node = temp_node;
-         return;
-       }
-       // matching_faces.push_back(face);
+ for(Node* node : nodes) {
+   for(Face* face : node->faces) {
+     if(!(face->traversed) && face->isOpen(colors) && face->matchesNodes(nodes)) {
+       result = face;
+       return;
      }
    }
  }
- // for (Face* face : matching_faces) {
- //   for (Face* face2 : matching_faces) {
- //     if (face == this || face == face2) {
- //       continue;
- //     } else {
- //       if (face->matchesNodes(face2->nodes, temp_node)) {
- //         if (face->isOpen(colors) && !(face->traversed)) {
- //           result = face;
- //           extra_node = temp_node;
- //           return;
- //         }
- //       }
- //     }
- //   }
- // }
  result = NULL;
 }
 
@@ -120,51 +102,55 @@ void Face::findNextFace(vector<string> colors, Face *& result, Node *& extra_nod
  * @param matching_nodes Nodes ot search for match
  * @param extra_node Pointer to assign to non-matching node found
  */
-bool Face::matchesNodes(vector<Node *> matching_nodes, Node *& extra_node) {
+bool Face::matchesNodes(vector<Node *>& matching_nodes) {
   // Initialize unordered_map that will contain nodes with no matching node
-  unordered_map<string, Node *> match_not_found;
+  unordered_map<string, Node*> match_not_found;
+  string key;
 
   // Fill match_not_found with all nodes initially (matches later removed)
-  for (Node* node : nodes) {
-    string key = "";
+  for(Node* node : nodes) {
+    key = "";
     vectorToString(node->x, key);
     match_not_found.insert({key, node});
   }
-
   int numMatches = 0;
-  Node * non_matching_node;
+  Node* non_matching_node;
+  bool found_match;
+  int index;
+  vector<Node*> nodes_copy = this->nodes;
 
   // Iterate over nodes, counting matches and updating matches_not_found
-  for (Node * match_node : matching_nodes) {
-    bool found_match = false;
-    for (Node * face_node : nodes) {
-      if (match_node == face_node) {
-        string key = "";
+  for(Node* match_node : matching_nodes) {
+    found_match = false;
+    index = 0;
+    for(Node* face_node : nodes_copy) {
+      if(match_node == face_node) {
+        key = "";
         vectorToString(face_node->x, key);
-        if (match_not_found.find(key) != match_not_found.end()) {
+        if(match_not_found.find(key) != match_not_found.end()) {
           match_not_found.erase(key);
         }
+        nodes_copy.erase(nodes_copy.begin()+index);
         found_match = true;
         numMatches++;
         break;
       }
+      ++index;
     }
-    if (!found_match) {
+    if(!found_match) {
       non_matching_node = match_node;
     }
   }
 
   // Check if only one non-matching node exists, otherwise return false
-  if (numMatches == static_cast<int>(matching_nodes.size()) - 1 &&
-      static_cast<int>(match_not_found.size()) == 1) {
-    Node * new_non_matching_node;
-    for (auto n : match_not_found) {
+  if(numMatches == static_cast<int>(matching_nodes.size())-1 && static_cast<int>(match_not_found.size()) == 1) {
+    Node* new_non_matching_node;
+    for(auto n : match_not_found) {
       new_non_matching_node = n.second;
     }
-    for (Face* face : new_non_matching_node->faces) {
-      for (Node* node : face->nodes) {
-        if (node == non_matching_node) {
-          extra_node = non_matching_node;
+    for(Face* face : new_non_matching_node->faces) {
+      for(Node* node : face->nodes) {
+        if(node == non_matching_node) {
           return true;
         }
       }

@@ -13,6 +13,6 @@ class SpernerTriangle {
   public:
     vector<Node*> nodes;
 
-    SpernerTriangle(vector<Node*> solution_nodes);
+    SpernerTriangle(vector<Node*>& solution_nodes);
     void printSpernerTriangle();
 };
